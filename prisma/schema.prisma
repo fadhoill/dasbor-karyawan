@@ -1,0 +1,100 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum EmploymentStatus {
+  PERMANENT
+  CONTRACT
+  INTERN
+  RESIGNED
+}
+
+enum Education {
+  HIGH_SCHOOL
+  DIPLOMA
+  BACHELOR
+  MASTER
+  DOCTORATE
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  employees Employee[]
+  createdAt DateTime   @default(now())
+}
+
+model Position {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  employees Employee[]
+  createdAt DateTime   @default(now())
+}
+
+model Employee {
+  id               Int              @id @default(autoincrement())
+  employeeCode     String           @unique
+  name             String
+  email            String           @unique
+  phone            String?
+  gender           Gender
+  birthDate        DateTime
+  address          String?
+  education        Education
+  employmentStatus EmploymentStatus @default(CONTRACT)
+  joinDate         DateTime
+
+  departmentId     Int
+  positionId       Int
+
+  department       Department       @relation(fields: [departmentId], references: [id])
+  position         Position         @relation(fields: [positionId], references: [id])
+
+  payrolls         Payroll[]
+  performances     Performance[]
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model Payroll {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  period      String
+  baseSalary  Decimal  @db.Decimal(15, 2)
+  allowance   Decimal  @default(0) @db.Decimal(15, 2)
+  bonus       Decimal  @default(0) @db.Decimal(15, 2)
+  deductions  Decimal  @default(0) @db.Decimal(15, 2)
+  netSalary   Decimal  @db.Decimal(15, 2)
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([employeeId, period])
+}
+
+model Performance {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  period      String
+  score       Float
+  notes       String?
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([employeeId, period])
+}
