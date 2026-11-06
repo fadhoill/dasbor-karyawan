@@ -7,7 +7,7 @@ import { Suspense } from "react";
 async function getDashboardData() {
   const [
     totalEmployees,
-    employeesByDept,
+    employeesByGender,
     employeesByStatus,
     payrollStats,
     recentEmployees,
@@ -15,7 +15,7 @@ async function getDashboardData() {
   ] = await Promise.all([
     prisma.employee.count(),
     prisma.employee.groupBy({
-      by: ["departmentId"],
+      by: ["gender"],
       _count: true,
     }),
     prisma.employee.groupBy({
@@ -45,13 +45,13 @@ async function getDashboardData() {
     }),
   ]);
 
-  const departments = await prisma.department.findMany();
-  const deptMap = new Map(departments.map((d) => [d.id, d.name]));
-
-  const deptData = employeesByDept.map((item) => ({
-    name: deptMap.get(item.departmentId) || "Unknown",
+  const genderData = employeesByGender.map((item) => ({
+    name: item.gender,
     value: item._count,
   }));
+
+  const departments = await prisma.department.findMany();
+  const totalDepartments = departments.length;
 
   const statusData = employeesByStatus.map((item) => ({
     name: item.employmentStatus,
@@ -60,10 +60,10 @@ async function getDashboardData() {
 
   return {
     totalEmployees,
-    totalDepartments: departments.length,
+    totalDepartments,
     avgSalary: payrollStats._avg.netSalary || 0,
     totalPayroll: payrollStats._sum.netSalary || 0,
-    deptData,
+    genderData,
     statusData,
     recentEmployees,
     topEmployees,
@@ -136,7 +136,7 @@ async function DashboardContent() {
       
 
       {/* Charts */}
-      <DashboardCharts deptData={data.deptData} statusData={data.statusData} />
+      <DashboardCharts genderData={data.genderData} statusData={data.statusData} />
       {/* Top 5 Employees */}
       <div className="bg-white rounded-lg shadow mb-8">
         <div className="px-6 py-4 border-b border-gray-200">

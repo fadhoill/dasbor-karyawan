@@ -23,19 +23,19 @@ const EmploymentStatusSector = (props: PieSectorShapeProps) => (
 );
 
 interface ChartProps {
-  deptData: { name: string; value: number }[];
+  genderData: { name: string; value: number }[];
   statusData: { name: string; value: number }[];
 }
 
-export default function DashboardCharts({ deptData, statusData }: ChartProps) {
+export default function DashboardCharts({ genderData, statusData }: ChartProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      {/* Department Chart */}
+      {/* Gender Chart */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Karyawan per Departemen</h2>
+        <h2 className="text-xl font-semibold mb-4">Karyawan per Gender</h2>
 
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={deptData}>
+          <BarChart data={genderData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
